@@ -25,6 +25,7 @@ namespace CodePulse.API.Controllers
                 UrlHandle = request.UrlHandle
             };
             await _repository.CreateAsync(category);
+
             var response = new CategoryDto
             {
                 Id = category.Id,
