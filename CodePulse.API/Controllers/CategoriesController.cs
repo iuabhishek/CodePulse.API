@@ -34,5 +34,29 @@ namespace CodePulse.API.Controllers
             };
             return Ok(response);
         }
+
+        [HttpGet]
+        public async Task<IActionResult>GetAllCategory()
+        {
+           var categoryes= await _repository.GetAllCategoryAsync();
+            var responce = new List<CategoryDto>();
+            foreach (var category in categoryes)
+            {
+                responce.Add(new CategoryDto{
+                    Id = category.Id,
+                    Name=category.Name,
+                    UrlHandle=category.UrlHandle
+                });
+            }
+
+            return Ok(responce);
+        }
+        [HttpGet]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult>GetCategoryById([FromRoute] Guid id)
+        {
+            var category = await _repository.GetCategoryByIdAsync(id);  
+            return Ok(category);
+        }
     }
 }
