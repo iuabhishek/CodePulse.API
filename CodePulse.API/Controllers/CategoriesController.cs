@@ -35,7 +35,7 @@ namespace CodePulse.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
+        [HttpGet] 
         public async Task<IActionResult>GetAllCategory()
         {
            var categoryes= await _repository.GetAllCategoryAsync();
@@ -51,12 +51,49 @@ namespace CodePulse.API.Controllers
 
             return Ok(responce);
         }
+
         [HttpGet]
         [Route("{id:Guid}")]
-        public async Task<IActionResult>GetCategoryById([FromRoute] Guid id)
+        public async Task<IActionResult>CategoryById([FromRoute] Guid id)
         {
             var category = await _repository.GetCategoryByIdAsync(id);  
-            return Ok(category);
+            if(category is null)
+            {
+                return NotFound();
+            }
+            var response= new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                UrlHandle = category.UrlHandle
+            };
+            return Ok(response);
         }
+
+        [HttpPut]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> EditCategory([FromRoute] Guid id, UpdateCategoryDto request)
+        {
+            var category = new Category
+            {
+                Id = id,
+                Name = request.Name,
+                UrlHandle = request.UrlHandle
+            };
+            category=await _repository.UpdateAsync(id,category);
+            if(category is null)
+            {
+                return NotFound();
+            }
+            var response = new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                UrlHandle = category.UrlHandle
+            };
+            return Ok(response);
+           
+        }
+
     }
 }
