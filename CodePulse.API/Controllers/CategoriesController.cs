@@ -1,7 +1,9 @@
-﻿using CodePulse.API.Data;
-using CodePulse.API.Models.Domain;
+﻿
 using CodePulse.API.Models.DTO;
-using CodePulse.API.Repositories.Interface;
+using CodePulse.Application.Features.Categories.Command;
+using CodePulse.Application.Features.Categories.Queries;
+using CodePulse.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,21 +13,22 @@ namespace CodePulse.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryRepository _repository;
-        public CategoriesController(ICategoryRepository repository)
+        private readonly ISender _sender;
+        public CategoriesController(ISender sender)
         {
-                this._repository = repository;
-        }
+
+            _sender = sender;
+        }     
+
         [HttpPost]
-        public async Task<IActionResult> CreateCategories(CreateCategoryRequest request)
+        public async Task<IActionResult> CreateCategories([FromBody] CreateCategoryRequest request)
         {
             var category = new Category
             {
                 Name = request.Name,
                 UrlHandle = request.UrlHandle
             };
-            await _repository.CreateAsync(category);
-
+            category= await _sender.Send(new CreateCategoryCommand(category));
             var response = new CategoryDto
             {
                 Id = category.Id,
@@ -35,33 +38,34 @@ namespace CodePulse.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet] 
-        public async Task<IActionResult>GetAllCategory()
+        [HttpGet]
+        public async Task<IActionResult> GetAllCategory()
         {
-           var categoryes= await _repository.GetAllCategoryAsync();
-            var responce = new List<CategoryDto>();
-            foreach (var category in categoryes)
+            var categories = await _sender.Send(new GetAllCategoryQuery());
+            var response = new List<CategoryDto>();
+            foreach (var category in categories)
             {
-                responce.Add(new CategoryDto{
+                response.Add(new CategoryDto
+                {
                     Id = category.Id,
-                    Name=category.Name,
-                    UrlHandle=category.UrlHandle
+                    Name = category.Name,
+                    UrlHandle = category.UrlHandle
                 });
             }
 
-            return Ok(responce);
+            return Ok(response);
         }
 
         [HttpGet]
         [Route("{id:Guid}")]
-        public async Task<IActionResult>CategoryById([FromRoute] Guid id)
+        public async Task<IActionResult> CategoryById([FromRoute] Guid id)
         {
-            var category = await _repository.GetCategoryByIdAsync(id);  
-            if(category is null)
+            var category = await _sender.Send(new GetCategoryByIdQuery(id));
+            if (category is null)
             {
                 return NotFound();
             }
-            var response= new CategoryDto
+            var response = new CategoryDto
             {
                 Id = category.Id,
                 Name = category.Name,
@@ -80,8 +84,8 @@ namespace CodePulse.API.Controllers
                 Name = request.Name,
                 UrlHandle = request.UrlHandle
             };
-            category=await _repository.UpdateAsync(id,category);
-            if(category is null)
+            category = await _sender.Send(new UpdateCategoryCommand(id, category));
+            if (category is null)
             {
                 return NotFound();
             }
@@ -92,7 +96,27 @@ namespace CodePulse.API.Controllers
                 UrlHandle = category.UrlHandle
             };
             return Ok(response);
-           
+
+        }
+
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+        {
+            var deletedCategory = await _sender.Send(new DeleteCategoryCommand(id));
+            if (deletedCategory is null)
+            {
+                return NotFound();
+            }
+            var response = new DeleteCategoryDto
+            {
+                Id = deletedCategory.Id,
+                Name = deletedCategory.Name,
+                UrlHandle = deletedCategory.UrlHandle
+            };
+
+            return Ok(response);
+
         }
 
     }

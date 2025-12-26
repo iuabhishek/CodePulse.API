@@ -1,6 +1,6 @@
-using CodePulse.API.Data;
-using CodePulse.API.Repositories.Implementation;
-using CodePulse.API.Repositories.Interface;
+using CodePulse.API;
+
+using CodePulse.Infrastructure.Data;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,8 +16,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("CodePulseConnectionString"));
 });
+builder.Services.AddApiDI();
 
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(option =>
 {

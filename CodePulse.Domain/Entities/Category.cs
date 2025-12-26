@@ -1,4 +1,4 @@
-﻿namespace CodePulse.API.Models.Domain
+﻿namespace CodePulse.Domain.Entities
 {
     public class Category
     {

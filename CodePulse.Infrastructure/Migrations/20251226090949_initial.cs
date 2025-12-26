@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace CodePulse.API.Migrations
+namespace CodePulse.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmigration : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
